@@ -54,10 +54,13 @@ app.include_router(geofences_router)
 def home():
     return {"message": "Сервер умного браслета работает!"}
 
-FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
-
-app.mount(
-    "/site",
-    StaticFiles(directory=str(FRONTEND_DIR), html=True),
-    name="site",
+FRONTEND_DIST = (
+    Path(__file__).resolve().parent.parent / "frontend" / "dist"
 )
+
+if FRONTEND_DIST.is_dir():
+    app.mount(
+        "/site",
+        StaticFiles(directory=str(FRONTEND_DIST), html=True),
+        name="site",
+    )
