@@ -1,0 +1,46 @@
+.env
+.venv/
+__pycache__/
+
+# Пароли и настройки окружения
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# PyCharm
+.idea/
+
+# Frontend
+node_modules/
+dist/
+
+# Логи
+*.log
+
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+.idea/
+__pycache__/
+*.pyc
+node_modules/
+dist/
+*.log
+
+.env
+.env.*
+!.env.example
+.venv/
+.idea/
+__pycache__/
+*.pyc
+node_modules/
+dist/
