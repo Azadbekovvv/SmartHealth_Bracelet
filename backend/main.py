@@ -13,7 +13,7 @@ from backend.routers.locations import router as locations_router
 from backend.routers.alert_rules import router as alert_rules_router
 from backend.routers.notifications import router as notifications_router
 from backend.routers.geofences import router as geofences_router
-
+from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -27,6 +27,18 @@ app = FastAPI(
     description="Сервер проекта «Умный браслет»",
     version="0.1.0",
     lifespan=lifespan,
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+    ],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Device-Key"],
 )
 
 app.include_router(auth_router)
