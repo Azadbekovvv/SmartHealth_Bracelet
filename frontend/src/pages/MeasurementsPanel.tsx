@@ -33,6 +33,15 @@ export default function MeasurementsPanel({ braceletId, token }: Props) {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
     const [reload, setReload] = useState(0)
+    const [now, setNow] = useState(() => Date.now())
+
+    useEffect(() => {
+        const timer = window.setInterval(() => {
+            setNow(Date.now())
+        }, 30_000)
+
+        return () => window.clearInterval(timer)
+    }, [])
 
     useEffect(() => {
         const controller = new AbortController()
@@ -101,7 +110,7 @@ export default function MeasurementsPanel({ braceletId, token }: Props) {
     const measurement = history[0]
 
     const age = measurement
-        ? Date.now() - new Date(measurement.measured_at).getTime()
+        ? now - new Date(measurement.measured_at).getTime()
         : 0
 
     // Для графика располагаем измерения от старых к новым.
