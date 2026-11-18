@@ -1,5 +1,8 @@
-
 import pytest
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
