@@ -36,6 +36,7 @@ app.add_middleware(
         "http://localhost:5174",
         "http://127.0.0.1:5174",
         "https://ec0wdhu-anonymous-8081.exp.direct",
+        "https://smarthealth-mobile.onrender.com",
     ],
     allow_credentials=False,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
