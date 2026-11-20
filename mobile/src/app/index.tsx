@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -512,6 +513,8 @@ export default function HomeScreen() {
                 Здесь отображаются данные твоего аккаунта.
               </Text>
 
+              <DailySteps key={profile.id} userId={profile.id} />
+
               <View style={styles.card}>
                 <Text style={styles.sectionTitle}>Мои браслеты</Text>
 
@@ -776,21 +779,6 @@ export default function HomeScreen() {
                   )}
                 </View>
               ) : null}
-
-              <View style={styles.card}>
-                <Text style={styles.sectionTitle}>
-                  Активность сегодня
-                </Text>
-                <Text style={styles.description}>
-                  Шаги: нет данных
-                </Text>
-                <Text style={styles.description}>
-                  Калории: нет данных
-                </Text>
-                <Text style={styles.note}>
-                  Подсчёт шагов и калорий ещё не подключён.
-                </Text>
-              </View>
             </>
           ) : null}
 
@@ -850,6 +838,115 @@ export default function HomeScreen() {
         </View>
       </View>
     </SafeAreaView>
+  );
+}
+
+const DEFAULT_STEP_GOAL = 10000;
+const DEMO_STEPS = 4200;
+
+function parseStepGoal(value: string): number | null {
+  if (!/^[0-9]+$/.test(value)) return null;
+  const goal = Number(value);
+  return goal >= 1 && goal <= 100000 ? goal : null;
+}
+
+function DailySteps({ userId }: { userId: number }) {
+  const storageKey = `smarthealth_step_goal_${userId}`;
+  const [goal, setGoal] = useState(DEFAULT_STEP_GOAL);
+  const [draft, setDraft] = useState(String(DEFAULT_STEP_GOAL));
+  const [feedback, setFeedback] = useState('');
+  const [demo, setDemo] = useState(false);
+  const progress = Math.floor((DEMO_STEPS / goal) * 100);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    try {
+      const saved = parseStepGoal(localStorage.getItem(storageKey) ?? '');
+      if (saved !== null) {
+        setGoal(saved);
+        setDraft(String(saved));
+      }
+    } catch {
+      // Continue with the default if browser storage is unavailable.
+    }
+  }, [storageKey]);
+
+  function saveGoal() {
+    const next = parseStepGoal(draft.trim());
+    if (next === null) {
+      setFeedback('Введи целое число от 1 до 100 000.');
+      return;
+    }
+
+    setGoal(next);
+    setDraft(String(next));
+
+    if (Platform.OS === 'web') {
+      try {
+        localStorage.setItem(storageKey, String(next));
+        setFeedback('Цель сохранена в этом браузере.');
+        return;
+      } catch {
+        // The goal is still available while the screen is open.
+      }
+    }
+
+    setFeedback('Цель изменена на время работы экрана.');
+  }
+
+  return (
+    <View style={styles.card}>
+      <Text style={styles.sectionTitle}>Активность сегодня</Text>
+      <Text style={styles.description}>
+        Шаги: {demo ? DEMO_STEPS : 'нет данных'}
+      </Text>
+      <Text style={styles.description}>
+        Дневная цель: {goal} шагов
+      </Text>
+      <Text style={styles.description}>
+        Прогресс: {demo ? `${progress}%` : 'нет данных'}
+      </Text>
+      <Text style={styles.note}>
+        {demo
+          ? 'Источник: тестовые данные. Это пример, а не измерение.'
+          : 'Источник: телефон и браслет пока не подключены к подсчёту шагов.'}
+      </Text>
+
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => setDemo(!demo)}
+      >
+        <Text style={styles.link}>
+          {demo ? 'Скрыть пример' : 'Показать пример'}
+        </Text>
+      </Pressable>
+
+      <TextInput
+        accessibilityLabel="Новая дневная цель в шагах"
+        keyboardType="number-pad"
+        maxLength={6}
+        value={draft}
+        onChangeText={(value) => {
+          setDraft(value);
+          setFeedback('');
+        }}
+        style={styles.input}
+      />
+
+      <Pressable
+        accessibilityRole="button"
+        onPress={saveGoal}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>Сохранить цель</Text>
+      </Pressable>
+
+      {feedback ? (
+        <Text accessibilityRole="alert" style={styles.note}>
+          {feedback}
+        </Text>
+      ) : null}
+    </View>
   );
 }
 
